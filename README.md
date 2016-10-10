@@ -5,8 +5,8 @@ Simple http server for localhost development
 ## Features
 - [x] Use gohttp as http framework.
 - [x] Static http file server.
+- [x] Support gzip.
 - [ ] Support http2.
-- [ ] Support gzip.
 - [ ] Support http proxy.
 - [ ] Support https proxy to http.
 - [ ] Support websocket.
