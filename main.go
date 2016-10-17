@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -13,8 +14,9 @@ import (
 )
 
 var opts struct {
-	Service string `long:"service" default:":3000" description:"ip:port to bind to"`
-	Gzip    bool   `long:"gzip" description:"whether to enable gzip encoding or not"`
+	Host string `long:"host" default:"0.0.0.0" description:"ip to bind to"`
+	Port uint16 `long:"port" default:"3000" description:"port to bind to"`
+	Gzip bool   `long:"gzip" description:"whether to enable gzip encoding or not"`
 }
 
 func main() {
@@ -37,6 +39,6 @@ func main() {
 		a.Use(httpgzip.NewHandler)
 	}
 
-	log.Printf("HTTP listening at: %v", opts.Service)
-	a.Listen(opts.Service)
+	log.Printf("HTTP listening at: %v:%v", opts.Host, opts.Port)
+	a.Listen(fmt.Sprintf("%v:%d", opts.Host, opts.Port))
 }
