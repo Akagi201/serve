@@ -17,4 +17,6 @@ Simple http server for localhost development
 * `go build main.go -o serve`
 
 ## Run
-* `--service`: default service is `:3000`
+* `--host`: default host is `0.0.0.0`
+* `--port`: default port is `3000`
+* `--gzip`: default is `false`
