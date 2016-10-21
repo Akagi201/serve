@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/akfork/app"
+	"github.com/Akagi201/light"
 	"github.com/daaku/go.httpgzip"
 	"github.com/gohttp/logger"
 	"github.com/gohttp/serve"
@@ -31,14 +31,14 @@ func main() {
 		}
 	}
 
-	a := app.New()
-	a.Use(logger.New())
-	a.Use(serve.New("./"))
+	app := light.New()
+	app.Use(logger.New())
+	app.Use(serve.New("./"))
 
 	if opts.Gzip {
-		a.Use(httpgzip.NewHandler)
+		app.Use(httpgzip.NewHandler)
 	}
 
 	log.Printf("HTTP listening at: %v:%v", opts.Host, opts.Port)
-	a.Listen(fmt.Sprintf("%v:%d", opts.Host, opts.Port))
+	app.Listen(fmt.Sprintf("%v:%d", opts.Host, opts.Port))
 }
