@@ -27,7 +27,7 @@ func main() {
 			log.Printf("error: %v\n", err.Error())
 			os.Exit(1)
 		} else {
-			log.Printf("%v\n", err.Error())
+			// log.Printf("%v\n", err.Error())
 			os.Exit(0)
 		}
 	}
