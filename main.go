@@ -17,6 +17,7 @@ var opts struct {
 	Host string `long:"host" default:"0.0.0.0" description:"ip to bind to"`
 	Port uint16 `long:"port" default:"3000" description:"port to bind to"`
 	Gzip bool   `long:"gzip" description:"whether to enable gzip encoding or not"`
+	Path string `long:"path" default:"./" description:"the root path to serve at"`
 }
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 
 	app := light.New()
 	app.Use(logger.New())
-	app.Use(serve.New("./"))
+	app.Use(serve.New(opts.Path))
 
 	if opts.Gzip {
 		app.Use(httpgzip.NewHandler)

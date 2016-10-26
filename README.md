@@ -20,3 +20,4 @@ Simple http server for localhost development
 * `--host`: default host is `0.0.0.0`
 * `--port`: default port is `3000`
 * `--gzip`: default is `false`
+* `--path`: the root path to serve at, default is `./`
