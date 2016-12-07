@@ -5,11 +5,9 @@ Simple http server for localhost development
 ## Features
 - [x] Use gohttp as http framework.
 - [x] Static http file server.
-- [x] Support gzip.
+- [x] Support https.
 - [ ] Support http2.
-- [ ] Support http proxy.
-- [ ] Support https proxy to http.
-- [ ] Support websocket.
+- [ ] Support WebSocket.
 - [ ] Support browser-sync like features.
 
 ## Build
@@ -17,7 +15,7 @@ Simple http server for localhost development
 * `go build main.go -o serve`
 
 ## Run
-* `--host`: default host is `0.0.0.0`
-* `--port`: default port is `3000`
-* `--gzip`: default is `false`
-* `--path`: the root path to serve at, default is `./`
+* `./serve -h`
+* `openssl genrsa -out server.key 2048`
+* `openssl req -new -x509 -key server.key -out server.crt -days 365`
+* `sudo ./serve --http=0.0.0.0:8888 --domains=akagi201.org`
