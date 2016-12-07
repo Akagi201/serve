@@ -12,7 +12,10 @@ Simple http server for localhost development
 
 ## Build
 * docker: `docker build -t serve .`
-* `go build main.go -o serve`
+* `go build -o serve`
+
+## Install
+* `go get github.com/Akagi201/serve`
 
 ## Run
 * `./serve -h`
