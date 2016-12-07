@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"path"
 	"strings"
 	"sync"
 
@@ -14,10 +16,10 @@ import (
 )
 
 var opts struct {
-	HTTPListenAddr  string   `long:"http" default:"0.0.0.0:80" description:"HTTP address to listen at"`
-	HTTPSListenAddr string   `long:"https" default:"0.0.0.0:443" description:"HTTPS address to listen at"`
+	HTTPListenAddr  string   `long:"http" default:"0.0.0.0:80" description:"HTTP address to listen at, :0 to disable it"`
+	HTTPSListenAddr string   `long:"https" default:"0.0.0.0:443" description:"HTTPS address to listen at, :0 to disable it"`
 	HTTPSDomains    []string `long:"domains" description:"the allow domains, empty to allow all."`
-	Path            string   `long:"path" default:"./" description:"the root path to serve at"`
+	HTML            string   `long:"html" default:"./" description:"the root html path to serve at"`
 	CacheFile       string   `long:"cache" default:"./letsencrypt.cache" description:"the cache for https."`
 	UseLetsEncrypt  bool     `long:"lets" description:"whether to use letsencrypt CA. self sign if not."`
 	SelfSignKey     string   `long:"ssk" default:"server.key" description:"self-sign key, user can build it: openssl genrsa -out server.key 2048"`
@@ -45,38 +47,64 @@ func main() {
 		}
 	}
 
-	fh := http.FileServer(http.Dir(opts.Path))
-	http.Handle("/", fh)
-
-	var protos []string
 	_, httpPort, err := net.SplitHostPort(opts.HTTPListenAddr)
 	if err != nil {
 		log.Fatalf("http port parse error: %v", err)
 	}
-	protos = append(protos, fmt.Sprintf("http(:%v)", httpPort))
-
 	_, httpsPort, err := net.SplitHostPort(opts.HTTPSListenAddr)
 	if err != nil {
 		log.Fatalf("https port parse error: %v", err)
 	}
 
-	var domains string
-	if len(opts.HTTPSDomains) == 0 {
-		domains = "all domains"
+	if httpsPort != "0" && httpsPort != "443" {
+		log.Fatalln("https port must be 0(disabled) or 443(enabled)")
 	}
-	domains = strings.Join(opts.HTTPSDomains, ",")
-	protos = append(protos, fmt.Sprintf("https(:%v, %v, %v)", httpsPort, domains, opts.CacheFile))
 
-	if opts.UseLetsEncrypt {
-		protos = append(protos, "letsencrypt")
-	} else {
-		protos = append(protos, fmt.Sprintf("self-sign(%v, %v)", opts.SelfSignKey, opts.SelfSignCert))
+	if httpPort == "0" && httpsPort == "0" {
+		log.Fatalln("http and https are both disabled")
 	}
-	log.Printf("%v html root at %v", strings.Join(protos, ", "), string(opts.Path))
+
+	var cacheFile string
+	var html string
+	if !path.IsAbs(opts.CacheFile) && path.IsAbs(os.Args[0]) {
+		cacheFile = path.Join(path.Dir(os.Args[0]), opts.CacheFile)
+	}
+	if !path.IsAbs(opts.HTML) && path.IsAbs(os.Args[0]) {
+		html = path.Join(path.Dir(os.Args[0]), opts.HTML)
+	}
+
+	fh := http.FileServer(http.Dir(html))
+	http.Handle("/", fh)
+
+	var protos []string
+	if httpPort != "0" {
+		protos = append(protos, fmt.Sprintf("http(:%v)", httpPort))
+	}
+
+	if httpsPort != "0" {
+		var domains string
+		if len(opts.HTTPSDomains) == 0 {
+			domains = "all domains"
+		}
+		domains = strings.Join(opts.HTTPSDomains, ",")
+		protos = append(protos, fmt.Sprintf("https(:%v, %v, %v)", httpsPort, domains, cacheFile))
+
+		if opts.UseLetsEncrypt {
+			protos = append(protos, "letsencrypt")
+		} else {
+			protos = append(protos, fmt.Sprintf("self-sign(%v, %v)", opts.SelfSignKey, opts.SelfSignCert))
+		}
+	}
+
+	log.Printf("%v html root at %v", strings.Join(protos, ", "), html)
 
 	wg := sync.WaitGroup{}
 	go func() {
 		defer wg.Done()
+
+		if httpPort == "0" {
+			return
+		}
 
 		if err := http.ListenAndServe(fmt.Sprintf(":%v", httpPort), nil); err != nil {
 			panic(err)
@@ -87,11 +115,15 @@ func main() {
 	go func() {
 		defer wg.Done()
 
+		if httpsPort == "0" {
+			return
+		}
+
 		var err error
 		var m https.Manager
 
 		if opts.UseLetsEncrypt {
-			if m, err = https.NewLetsencryptManager("", opts.HTTPSDomains, opts.CacheFile); err != nil {
+			if m, err = https.NewLetsencryptManager("", opts.HTTPSDomains, cacheFile); err != nil {
 				panic(err)
 			}
 		} else {
