@@ -10,10 +10,6 @@ Simple http server for localhost development
 - [ ] Support WebSocket.
 - [ ] Support browser-sync like features.
 
-## Build
-* docker: `docker build -t serve .`
-* `go build -o serve`
-
 ## Install
 * `go get github.com/Akagi201/serve`
 
