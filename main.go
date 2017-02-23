@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	flags "github.com/jessevdk/go-flags"
 	"github.com/ossrs/go-oryx-lib/https"
 )
 
@@ -28,15 +27,6 @@ var opts struct {
 }
 
 func main() {
-	_, err := flags.Parse(&opts)
-	if err != nil {
-		if !strings.Contains(err.Error(), "Usage") {
-			log.Fatalf("cli parse error: %v", err)
-		} else {
-			return
-		}
-	}
-
 	_, httpPort, err := net.SplitHostPort(opts.HTTPListenAddr)
 	if err != nil {
 		log.Fatalf("http port parse error: %v", err)
