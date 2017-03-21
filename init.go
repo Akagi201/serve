@@ -12,8 +12,8 @@ import (
 
 var opts struct {
 	LogLevel        string   `long:"log_level" default:"info" description:"log level"`
-	HTTPListenAddr  string   `long:"http" default:"0.0.0.0:80" description:"HTTP address to listen at, :0 to disable it"`
-	HTTPSListenAddr string   `long:"https" default:"0.0.0.0:443" description:"HTTPS address to listen at, :0 to disable it"`
+	HTTPListenAddr  string   `long:"http" default:":8327" description:"HTTP address to listen at, :0 to disable it"`
+	HTTPSListenAddr string   `long:"https" default:":0" description:"HTTPS address to listen at, :0 to disable it"`
 	HTTPSDomains    []string `long:"domains" description:"the allow domains, empty to allow all."`
 	HTML            string   `long:"html" default:"./" description:"the root html path to serve at"`
 	CacheFile       string   `long:"cache" default:"./letsencrypt.cache" description:"the cache for https."`
