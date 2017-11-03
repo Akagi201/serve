@@ -24,10 +24,6 @@ func main() {
 		log.Fatalf("https port parse error: %v", err)
 	}
 
-	if httpsPort != "0" {
-		log.Fatalln("https port must be 0(disabled)")
-	}
-
 	if httpPort == "0" && httpsPort == "0" {
 		log.Fatalln("http and https are both disabled")
 	}
