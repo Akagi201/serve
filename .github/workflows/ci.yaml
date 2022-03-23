@@ -1,0 +1,44 @@
+# https://docs.digitalocean.com/products/kubernetes/how-to/deploy-using-github-actions/
+name: ci
+on:
+  push:
+    branches:
+      - master
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - name: Checkout master
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+      
+      # Install doctl
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/serve:${{GITHUB_SHA}} .
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/serve:${{GITHUB_SHA}}
+      
+      - name: Update deployment file
+        run: sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/serve:'${{GITHUB_SHA}}'|' $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+      
+      - name: Deploy to DigitalOcean Kubernetes cluster
+        run: kubectl apply -f $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/serve

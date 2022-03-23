@@ -1,26 +1,18 @@
 # serve
 
-Simple http server for localhost development
+A dead simple file server.
 
 ## Features
-- [x] Use gohttp as http framework.
-- [x] Static http file server.
-- [x] Support https.
-- [ ] Support http2.
-- [ ] Support WebSocket.
-- [ ] Support browser-sync like features.
 
-## Install
-* `go get github.com/Akagi201/serve`
+- [x] Serve static files
+- [x] Github CI/CD
+- [x] Deploy to digitalocean kubernetes cluster
+- [ ] Auto https
+- [ ] Safe upload file
+- [ ] Multi stage docker build
 
-## Run
-* `./serve -h`
+### HTTPS certs
 
-### HTTPS serve
-* `openssl genrsa -out server.key 2048`
-* `openssl req -new -x509 -key server.key -out server.crt -days 365`
-* `sudo ./serve --http=0.0.0.0:8888 --domains=akagi201.org`
-* Convert crt to pem: `openssl x509 -in server.crt -out server.pem -outform PEM`
-
-### HTTP serve
-* `serve --http=:8888 --https=:0`
+- `openssl genrsa -out server.key 2048`
+- `openssl req -new -x509 -key server.key -out server.crt -days 365`
+- Convert crt to pem: `openssl x509 -in server.crt -out server.pem -outform PEM`
