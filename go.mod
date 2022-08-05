@@ -1,6 +1,6 @@
 module github.com/Akagi201/serve
 
-go 1.18
+go 1.19
 
 require (
 	github.com/gin-contrib/static v0.0.1
