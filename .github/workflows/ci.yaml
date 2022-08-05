@@ -16,29 +16,38 @@ jobs:
         with:
           fetch-depth: 0
       
-      # Install doctl
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+      - name: setup-go
+        uses: actions/setup-go@v3
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          go-version: '^1.19'
+          cache: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+
+      # # Install doctl
+      # - name: Install doctl
+      #   uses: digitalocean/action-doctl@v2
+      #   with:
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       
-      - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/serve:$GITHUB_SHA .
+      # - name: Build container image
+      #   run: docker build -t ${{ secrets.REGISTRY_NAME }}/serve:$GITHUB_SHA .
 
-      - name: Log in to DigitalOcean Container Registry with short-lived credentials
-        run: doctl registry login --expiry-seconds 1200
+      # - name: Log in to DigitalOcean Container Registry with short-lived credentials
+      #   run: doctl registry login --expiry-seconds 1200
 
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/serve:$GITHUB_SHA
+      # - name: Push image to DigitalOcean Container Registry
+      #   run: docker push ${{ secrets.REGISTRY_NAME }}/serve:$GITHUB_SHA
       
-      - name: Update deployment file
-        run: sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/serve:'$GITHUB_SHA'|' $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
+      # - name: Update deployment file
+      #   run: sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/serve:'$GITHUB_SHA'|' $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
 
-      - name: Save DigitalOcean kubeconfig with short-lived credentials
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+      # - name: Save DigitalOcean kubeconfig with short-lived credentials
+      #   run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
       
-      - name: Deploy to DigitalOcean Kubernetes cluster
-        run: kubectl apply -f $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
+      # - name: Deploy to DigitalOcean Kubernetes cluster
+      #   run: kubectl apply -f $GITHUB_WORKSPACE/deploy/prod-sgp1-deploy-serve.yaml
 
-      - name: Verify deployment
-        run: kubectl rollout status deployment/serve
+      # - name: Verify deployment
+      #   run: kubectl rollout status deployment/serve
